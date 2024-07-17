@@ -52,6 +52,7 @@ This function should only modify configuration layer settings."
      (shell :variables
             ;; shell-default-height 30
             shell-default-position 'bottom)
+     (osx :variables osx-swap-option-and-command t)
      spell-checking
      syntax-checking
      version-control
@@ -59,11 +60,11 @@ This function should only modify configuration layer settings."
      csv
      yaml
      python
-     tabs
+     (tabs :variables tabs-selected-tab-bar 'under)
      ;; javascript
      (c-c++ :variables c-c++-enable-clang-support t
-            c-c++-backend 'lsp-ccls)
-            ;; c-c++-backend 'lsp-clangd)
+            ;; c-c++-backend 'lsp-ccls)
+            c-c++-backend 'lsp-clangd)
      (latex :variables
             latex-build-command "LatexMk"
             latex-enable-auto-fill t
@@ -235,7 +236,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil, show file icons for entries and headings on Spacemacs home buffer.
    ;; This has no effect in terminal or if "all-the-icons" package or the font
    ;; is not installed. (default nil)
-   dotspacemacs-startup-buffer-show-icons nil
+   dotspacemacs-startup-buffer-show-icons t
 
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
@@ -277,11 +278,13 @@ It should only modify the values of Spacemacs settings."
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font or prioritized list of fonts. The `:size' can be specified as
+   ;; Default font or prioritized list of fonts. This setting has no effect when
+   ;; running Emacs in terminal. The font set here will be used for default and
+   ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Source Code Pro" ;; "BabelStone Han"
-                               ;; :size 20
+   dotspacemacs-default-font '("Source Code Pro"
+                               :size 15
                                :weight normal
                                :width normal)
 
@@ -358,6 +361,10 @@ It should only modify the values of Spacemacs settings."
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
+   ;; It is also possible to use a posframe with the following cons cell
+   ;; `(posframe . position)' where position can be one of `center',
+   ;; `top-center', `bottom-center', `top-left-corner', `top-right-corner',
+   ;; `top-right-corner', `bottom-left-corner' or `bottom-right-corner'
    ;; (default 'bottom)
    dotspacemacs-which-key-position 'bottom
 
@@ -575,6 +582,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq-default git-magit-status-fullscreen t)
   (server-start)
   )
 
@@ -599,21 +607,21 @@ before packages are loaded."
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 
-  (set-face-attribute 'mode-line nil :height 120)
-  (set-face-attribute 'mode-line-inactive nil :height 100)
+  ;; (set-face-attribute 'mode-line nil :height 120)
+  ;; (set-face-attribute 'mode-line-inactive nil :height 100)
 
   ;; (spacemacs/declare-prefix "o" "own-menu")
-  (spacemacs/set-leader-keys "oy" 'youdao-dictionary-search-at-point+)
-  (spacemacs/set-leader-keys "oY" 'youdao-dictionary-search-from-input)
+  (spacemacs/set-leader-keys "od" 'osx-dictionary-search-pointer)
+  (spacemacs/set-leader-keys "oD" 'osx-dictionary-search-input)
 
-  (turn-on-ace-pinyin-mode)
-  (evil-find-char-pinyin-mode)
+  ;; (turn-on-ace-pinyin-mode)
+  ;; (evil-find-char-pinyin-mode)
 
-  (setq lsp-clients-clangd-executable "/usr/bin/clangd-9")
+  ;; (setq lsp-clients-clangd-executable "/usr/bin/clangd")
 
-  (setq pyim-page-length 9)
-  (define-key pyim-mode-map "." 'pyim-page-next-page)
-  (define-key pyim-mode-map "," 'pyim-page-previous-page)
+  ;; (setq pyim-page-length 9)
+  ;; (define-key pyim-mode-map "." 'pyim-page-next-page)
+  ;; (define-key pyim-mode-map "," 'pyim-page-previous-page)
 
   (evil-leader/set-key "/" 'spacemacs/helm-project-do-rg-region-or-symbol)
 
@@ -624,13 +632,16 @@ before packages are loaded."
 
   ;; word-motion in vim keybindings when there're underscores
   (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
+  ;; (setq-default evil-symbol-word-search t)
+  ;; For all modes
+  ;; (add-hook 'after-change-major-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
   (setq python-shell-interpreter "ipython3")
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
 
-  (setq pyim-dicts
-    (quote
-     ((:name "bigdict" :file "/home/k/pyim-bigdict.pyim.gz"))))
+  ;; (setq pyim-dicts
+  ;;   (quote
+  ;;    ((:name "bigdict" :file "/home/k/pyim-bigdict.pyim.gz"))))
 
   (setq org-agenda-span 7
         org-agenda-start-on-weekday nil
@@ -668,73 +679,3 @@ before packages are loaded."
      ((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
   )
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
- '(fci-rule-color "#5B6268")
- '(jdee-db-active-breakpoint-face-colors (cons "#1B2229" "#51afef"))
- '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#98be65"))
- '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
- '(objed-cursor-color "#ff6c6b")
- '(package-selected-packages
-   '(magit-popup helm-gitignore gitignore-templates forge magit ghub closql emacsql-sqlite emacsql treepy dap-mode lsp-docker bui yaml protobuf-mode docker-tramp ox-clip flycheck-grammarly youdao-dictionary yasnippet-snippets yapfify yaml-mode xterm-color xclip ws-butler writeroom-mode winum which-key web-mode web-beautify vterm volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-persp treemacs-magit treemacs-evil toc-org terminal-here tagedit symon symbol-overlay string-inflection spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-delimiters pytest pyim pyenv-mode py-isort pug-mode prettier-js popwin pippel pipenv pip-requirements pcre2el password-generator paradox pangu-spacing orgit org-projectile org-present org-pomodoro org-mime org-download org-cliplink org-bullets org-brain open-junk-file mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-section magit-gitflow lorem-ipsum live-py-mode link-hint indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate google-c-style golden-ratio gnuplot git-timemachine git-messenger git-link git-gutter-fringe+ gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-ycmd flycheck-rtags flycheck-pos-tip flx-ido find-by-pinyin-dired fill-column-indicator fcitx fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-find-char-pinyin evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode editorconfig dumb-jump dotenv-mode doom-themes doom-modeline disaster diminish devdocs define-word cython-mode csv-mode cpp-auto-include company-ycmd company-web company-rtags company-reftex company-c-headers company-auctex company-anaconda column-enforce-mode clean-aindent-mode clang-format chinese-conv centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-highlight-symbol auto-dictionary auctex-latexmk aggressive-indent ace-pinyin ace-link ace-jump-helm-line ac-ispell))
- '(rustic-ansi-faces
-   ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF" "#bbc2cf"])
- '(vc-annotate-background "#282c34")
- '(vc-annotate-color-map
-   (list
-    (cons 20 "#98be65")
-    (cons 40 "#b4be6c")
-    (cons 60 "#d0be73")
-    (cons 80 "#ECBE7B")
-    (cons 100 "#e6ab6a")
-    (cons 120 "#e09859")
-    (cons 140 "#da8548")
-    (cons 160 "#d38079")
-    (cons 180 "#cc7cab")
-    (cons 200 "#c678dd")
-    (cons 220 "#d974b7")
-    (cons 240 "#ec7091")
-    (cons 260 "#ff6c6b")
-    (cons 280 "#cf6162")
-    (cons 300 "#9f585a")
-    (cons 320 "#6f4e52")
-    (cons 340 "#5B6268")
-    (cons 360 "#5B6268")))
- '(vc-annotate-very-old-color nil)
- '(warning-suppress-types
-   '(("fcitx.el")
-     ("fcitx.el")
-     ("fcitx.el")
-     ("fcitx.el")
-     ("fcitx.el")
-     ("fcitx.el")
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     (comp)
-     ("fcitx.el")
-     ("fcitx.el")
-     (comp))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(highlight-parentheses-highlight ((nil (:weight ultra-bold))) t))
-)
