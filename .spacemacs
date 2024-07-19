@@ -65,6 +65,7 @@ This function should only modify configuration layer settings."
      (c-c++ :variables c-c++-enable-clang-support t
             ;; c-c++-backend 'lsp-ccls)
             c-c++-backend 'lsp-clangd)
+     (cmake :variables cmake-backend 'lsp)
      (latex :variables
             latex-build-command "LatexMk"
             latex-enable-auto-fill t
@@ -244,7 +245,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-new-empty-buffer-major-mode 'text-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
-   dotspacemacs-scratch-mode 'text-mode
+   dotspacemacs-scratch-mode 'org-mode
 
    ;; If non-nil, *scratch* buffer will be persistent. Things you write down in
    ;; *scratch* buffer will be saved and restored automatically.
