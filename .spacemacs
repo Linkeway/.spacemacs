@@ -45,7 +45,7 @@ This function should only modify configuration layer settings."
      git
      (helm :variables helm-position 'top)
      lsp
-     (markdown :variables markdown-executable "~/.local/bin/markdown_py")
+     markdown
      multiple-cursors
      org
      ;; google-calendar
@@ -55,7 +55,7 @@ This function should only modify configuration layer settings."
      (osx :variables osx-swap-option-and-command t)
      spell-checking
      syntax-checking
-     version-control
+     (version-control  :variables version-control-diff-side 'left)
      html
      csv
      yaml
