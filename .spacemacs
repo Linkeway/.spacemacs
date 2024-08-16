@@ -33,6 +33,9 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     javascript
+     systemd
+     toml
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -52,6 +55,9 @@ This function should only modify configuration layer settings."
      (shell :variables
             ;; shell-default-height 30
             shell-default-position 'bottom)
+     (shell-scripts :variables shell-scripts-format-on-save t
+                    shell-scripts-backend 'lsp)
+
      (osx :variables osx-swap-option-and-command t)
      spell-checking
      syntax-checking
@@ -63,8 +69,9 @@ This function should only modify configuration layer settings."
      (tabs :variables tabs-selected-tab-bar 'under)
      ;; javascript
      (c-c++ :variables c-c++-enable-clang-support t
-            ;; c-c++-backend 'lsp-ccls)
+            c-c++-enable-clang-format-on-save t
             c-c++-backend 'lsp-clangd)
+            ;; c-c++-backend 'lsp-ccls)
      (cmake :variables cmake-backend 'lsp)
      (latex :variables
             latex-build-command "LatexMk"
@@ -72,8 +79,8 @@ This function should only modify configuration layer settings."
             latex-enable-folding t)
 
      (chinese :variables
-              chinese-enable-youdao-dict t
-              chinese-enable-fcitx t)
+              chinese-enable-youdao-dict nil
+              chinese-enable-fcitx nil)
      (plantuml :variables org-plantuml-jar-path "~/plantuml.jar"
                plantuml-default-exec-mode 'jar)
      treemacs)
@@ -533,7 +540,7 @@ It should only modify the values of Spacemacs settings."
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup nil
+   dotspacemacs-whitespace-cleanup 'trailing
 
    ;; If non-nil activate `clean-aindent-mode' which tries to correct
    ;; virtual indentation of simple modes. This can interfere with mode specific
@@ -632,10 +639,10 @@ before packages are loaded."
   (define-key evil-motion-state-map (kbd "S") #'avy-goto-char-timer)
 
   ;; word-motion in vim keybindings when there're underscores
-  (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
+  ;; (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
   ;; (setq-default evil-symbol-word-search t)
   ;; For all modes
-  ;; (add-hook 'after-change-major-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
+  (add-hook 'after-change-major-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
   (setq python-shell-interpreter "ipython3")
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
@@ -643,6 +650,8 @@ before packages are loaded."
   ;; (setq pyim-dicts
   ;;   (quote
   ;;    ((:name "bigdict" :file "/home/k/pyim-bigdict.pyim.gz"))))
+
+  (global-company-mode)
 
   (setq org-agenda-span 7
         org-agenda-start-on-weekday nil
@@ -679,4 +688,81 @@ before packages are loaded."
     (quote
      ((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
   )
-
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(ace-jump-helm-line ace-link ace-pinyin add-node-modules-path aggressive-indent
+                        all-the-icons auctex-latexmk auto-dictionary
+                        auto-highlight-symbol auto-yasnippet blacken
+                        browse-at-remote ccls centaur-tabs centered-cursor-mode
+                        chinese-conv clang-format clean-aindent-mode cmake-mode
+                        code-cells column-enforce-mode company-anaconda
+                        company-auctex company-c-headers company-math
+                        company-reftex company-rtags company-web company-ycmd
+                        counsel counsel-gtags cpp-auto-include csv-mode
+                        cython-mode dap-mode devdocs diff-hl diminish
+                        dired-quick-sort disaster doom-modeline doom-themes
+                        dotenv-mode drag-stuff dumb-jump eat emmet-mode esh-help
+                        eshell-prompt-extras eshell-z eval-sexp-fu evil-anzu
+                        evil-args evil-cleverparens evil-collection
+                        evil-easymotion evil-escape evil-evilified-state
+                        evil-exchange evil-find-char-pinyin evil-goggles
+                        evil-iedit-state evil-indent-plus evil-lion
+                        evil-lisp-state evil-matchit evil-mc evil-nerd-commenter
+                        evil-numbers evil-org evil-surround evil-tex
+                        evil-textobj-line evil-tutor evil-unimpaired
+                        evil-visual-mark-mode evil-visualstar expand-region
+                        eyebrowse fancy-battery find-by-pinyin-dired flx-ido
+                        flycheck-pos-tip flycheck-rtags flycheck-ycmd
+                        flyspell-correct-helm gendoxy ggtags gh-md git-link
+                        git-messenger git-modes git-timemachine
+                        gitignore-templates gnuplot golden-ratio google-c-style
+                        google-translate grizzl helm-ag helm-c-yasnippet
+                        helm-comint helm-company helm-css-scss helm-ctest
+                        helm-descbinds helm-git-grep helm-ls-git helm-lsp
+                        helm-make helm-mode-manager helm-org helm-org-rifle
+                        helm-projectile helm-purpose helm-pydoc helm-rtags
+                        helm-swoop helm-themes helm-xref hide-comnt
+                        highlight-indentation highlight-numbers
+                        highlight-parentheses hl-todo holy-mode hungry-delete
+                        hybrid-mode impatient-mode import-js importmagic
+                        indent-guide info+ ivy journalctl-mode js-doc js2-mode
+                        js2-refactor launchctl link-hint live-py-mode livid-mode
+                        lorem-ipsum lsp-latex lsp-origami lsp-pyright lsp-ui
+                        markdown-toc multi-line multi-term multi-vterm
+                        multiple-cursors mwim nodejs-repl nose npm-mode
+                        open-junk-file org-cliplink org-contrib org-download
+                        org-mime org-pomodoro org-present org-projectile
+                        org-rich-yank org-superstar orgit-forge osx-clipboard
+                        osx-dictionary osx-trash pangu-spacing paradox
+                        password-generator pcre2el pip-requirements pipenv
+                        pippel plantuml-mode poetry popwin prettier-js
+                        protobuf-mode pug-mode py-isort pydoc pyenv-mode pyim
+                        pyim-basedict pylookup pytest quickrun
+                        rainbow-delimiters restart-emacs reveal-in-osx-finder
+                        sass-mode scss-mode shell-pop skewer-mode slim-mode
+                        smeargle space-doc spaceline spacemacs-purpose-popwin
+                        spacemacs-whitespace-cleanup sphinx-doc
+                        string-edit-at-point string-inflection swiper
+                        symbol-overlay symon systemd tagedit term-cursor
+                        terminal-here tern toc-org toml-mode treemacs-evil
+                        treemacs-icons-dired treemacs-magit treemacs-persp
+                        treemacs-projectile undo-tree unfill uuidgen
+                        vi-tilde-fringe vim-powerline volatile-highlights
+                        web-beautify web-mode winum writeroom-mode ws-butler
+                        xclip yaml-mode yapfify yasnippet-snippets)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
