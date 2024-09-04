@@ -55,7 +55,7 @@ This function should only modify configuration layer settings."
      (shell :variables
             ;; shell-default-height 30
             shell-default-position 'bottom)
-     (shell-scripts :variables shell-scripts-format-on-save t
+     (shell-scripts :variables shell-scripts-format-on-save nil
                     shell-scripts-backend 'lsp)
 
      (osx :variables osx-swap-option-and-command t)
@@ -65,7 +65,7 @@ This function should only modify configuration layer settings."
      html
      csv
      yaml
-     python
+     (python :variables python-shell-interpreter "/usr/bin/python3")
      (tabs :variables tabs-selected-tab-bar 'under)
      ;; javascript
      (c-c++ :variables c-c++-enable-clang-support t
@@ -653,7 +653,6 @@ before packages are loaded."
   ;; For all modes
   (add-hook 'after-change-major-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
-  (setq python-shell-interpreter "ipython3")
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
 
   ;; (setq pyim-dicts
