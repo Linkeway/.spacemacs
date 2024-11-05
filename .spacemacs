@@ -627,6 +627,8 @@ before packages are loaded."
                 c-basic-offset 2)
   (setq centaur-tabs-label-fixed-length 8)
 
+  (setq markdown-max-image-size '(1100 . 800))
+
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 
