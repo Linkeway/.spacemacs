@@ -46,7 +46,8 @@ This function should only modify configuration layer settings."
      better-defaults
      ;; emacs-lisp
      git
-     (helm :variables helm-position 'top)
+     (helm :variables helm-position 'top
+           helm-enable-auto-resize t)
      lsp
      markdown
      multiple-cursors
@@ -221,8 +222,8 @@ It should only modify the values of Spacemacs settings."
    ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
-   dotspacemacs-startup-lists '((recents . 5)
-                                (projects . 7))
+   dotspacemacs-startup-lists '((recents . 7)
+                                (projects . 3))
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
@@ -379,6 +380,11 @@ It should only modify the values of Spacemacs settings."
    ;; are kept or minimized by `spacemacs/toggle-maximize-window' (SPC w m).
    ;; (default t)
    dotspacemacs-maximize-window-keep-side-windows t
+
+   ;; If nil, no load-hints enabled. If t, enable the `load-hints' which will
+   ;; put the most likely path on the top of `load-path' to reduce walking
+   ;; through the whole `load-path'.
+   dotspacemacs-enable-load-hints t
 
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
@@ -619,6 +625,7 @@ before packages are loaded."
   (setq-default evil-escape-key-sequence "jk"
                 c-default-style "bsd"
                 c-basic-offset 2)
+  (setq centaur-tabs-label-fixed-length 8)
 
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
@@ -659,6 +666,7 @@ before packages are loaded."
   ;;    ((:name "bigdict" :file "/home/k/pyim-bigdict.pyim.gz"))))
 
   (global-company-mode)
+  (centaur-tabs-group-buffer-groups)
 
   (setq org-agenda-span 7
         org-agenda-start-on-weekday nil
