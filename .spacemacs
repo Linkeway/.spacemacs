@@ -67,7 +67,9 @@ This function should only modify configuration layer settings."
      csv
      yaml
      (python :variables python-shell-interpreter "/usr/bin/python3")
-     (tabs :variables tabs-selected-tab-bar 'under)
+     (tabs :variables
+           ;; tabs-icons nil
+           tabs-selected-tab-bar 'under)
      ;; javascript
      (c-c++ :variables c-c++-enable-clang-support t
             c-c++-enable-clang-format-on-save t
@@ -261,7 +263,10 @@ It should only modify the values of Spacemacs settings."
 
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
-   ;; with 2 themes variants, one dark and one light)
+   ;; with 2 themes variants, one dark and one light). A theme from external
+   ;; package can be defined with `:package', or a theme can be defined with
+   ;; `:location' to download the theme package, refer the themes section in
+   ;; DOCUMENTATION.org for the full theme specifications.
    dotspacemacs-themes '(doom-one
                          spacemacs-dark
                          spacemacs-light)
@@ -383,8 +388,14 @@ It should only modify the values of Spacemacs settings."
 
    ;; If nil, no load-hints enabled. If t, enable the `load-hints' which will
    ;; put the most likely path on the top of `load-path' to reduce walking
-   ;; through the whole `load-path'.
-   dotspacemacs-enable-load-hints t
+   ;; through the whole `load-path'. It's an experimental feature to speedup
+   ;; Spacemacs on Windows. Refer the FAQ.org "load-hints" session for details.
+   dotspacemacs-enable-load-hints nil
+
+   ;; If t, enable the `package-quickstart' feature to avoid full package
+   ;; loading, otherwise no `package-quickstart' attemption (default nil).
+   ;; Refer the FAQ.org "package-quickstart" section for details.
+   dotspacemacs-enable-package-quickstart nil
 
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
@@ -715,6 +726,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(helm-posframe-width 151)
  '(package-selected-packages
    '(ace-jump-helm-line ace-link ace-pinyin add-node-modules-path aggressive-indent
                         all-the-icons auctex-latexmk auto-dictionary
