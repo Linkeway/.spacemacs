@@ -66,7 +66,7 @@ This function should only modify configuration layer settings."
      html
      csv
      yaml
-     (python :variables python-shell-interpreter "/usr/bin/python3")
+     (python :variables python-backend 'lsp)
      (tabs :variables
            ;; tabs-icons nil
            tabs-selected-tab-bar 'under)
@@ -76,14 +76,17 @@ This function should only modify configuration layer settings."
             c-c++-backend 'lsp-clangd)
             ;; c-c++-backend 'lsp-ccls)
      (cmake :variables cmake-backend 'lsp)
-     (latex :variables
-            latex-build-command "LatexMk"
-            latex-enable-auto-fill t
-            latex-enable-folding t)
+     ;; (latex :variables
+     ;;        latex-build-command "LatexMk"
+     ;;        latex-enable-auto-fill t
+     ;;        latex-enable-folding t)
 
-     (chinese :variables
-              chinese-enable-youdao-dict nil
-              chinese-enable-fcitx nil)
+     (llm-client :variables llm-client-enable-gptel t
+                 :variables llm-client-enable-ellama t)
+
+     ;; (chinese :variables
+     ;;          chinese-enable-youdao-dict nil
+     ;;          chinese-enable-fcitx nil)
      (plantuml :variables org-plantuml-jar-path "~/plantuml.jar"
                plantuml-default-exec-mode 'jar)
      treemacs)
@@ -239,7 +242,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil, show file icons for entries and headings on Spacemacs home buffer.
    ;; This has no effect in terminal or if "all-the-icons" package or the font
    ;; is not installed. (default nil)
-   dotspacemacs-startup-buffer-show-icons nil
+   dotspacemacs-startup-buffer-show-icons t
 
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
@@ -680,6 +683,39 @@ before packages are loaded."
 
   (global-company-mode)
   (centaur-tabs-group-buffer-groups)
+
+  (setq ns-use-native-fullscreen nil)
+  (setq ns-use-fullscreen-animation nil)
+
+  ;; tab key not recognized after toggling fullscreen
+  ;; https://www.reddit.com/r/emacs/comments/zdmnlp/tab_key_not_recognized_in_emacs_on_macos/
+  ;; (setq ns-use-native-fullscreen nil)
+  ;; (setq ns-use-fullscreen-animation nil)
+  ;; (run-at-time "5sec" nil
+  ;;              (lambda ()
+  ;;                (let ((fullscreen (frame-parameter (selected-frame)
+  ;;                                                   'fullscreen)))
+  ;;                  ;; If emacs has in fullscreen status, maximized
+  ;;                  ;; window first, drag from Mac's single space.
+  ;;                  (when (memq fullscreen '(fullscreen fullboth))
+  ;;                    (set-frame-parameter (selected-frame)
+  ;;                                         'fullscreen 'maximized))
+  ;;                  ;; Manipulating a frame without waiting for the
+  ;;                  ;; fullscreen animation to complete can cause a
+  ;;                  ;; crash, or other unexpected behavior, on macOS
+  ;;                  ;; (bug #28496).
+  ;;                  (sleep-for 1.5)
+  ;;                  ;; Call `toggle-frame-fullscreen' to fullscreen emacs.
+  ;;                  (toggle-frame-fullscreen))))
+
+  (setq
+   ;; gptel-model 'deepseek-r1:8b
+   gptel-model 'deepseek-coder-v2
+   gptel-backend (gptel-make-ollama "Ollama"
+                   :host "localhost:11434"
+                   :stream t
+                   ;; :models '(deepseek-r1:8b)))
+                   :models '(deepseek-coder-v2)))
 
   (setq org-agenda-span 7
         org-agenda-start-on-weekday nil
