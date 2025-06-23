@@ -66,7 +66,10 @@ This function should only modify configuration layer settings."
      html
      csv
      yaml
-     (python :variables python-backend 'lsp)
+     (python :variables python-backend 'lsp
+             python-sort-imports-on-save t
+             python-formatter 'yapf
+             python-format-on-save t)
      (tabs :variables
            ;; tabs-icons nil
            tabs-selected-tab-bar 'under)
@@ -103,6 +106,8 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages '(
                                       evil-find-char-pinyin
                                       xclip
+                                      sticky-scroll-mode
+                                      ;; aider
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -127,29 +132,6 @@ It should only modify the values of Spacemacs settings."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
-   ;; If non-nil then enable support for the portable dumper. You'll need to
-   ;; compile Emacs 27 from source following the instructions in file
-   ;; EXPERIMENTAL.org at to root of the git repository.
-   ;;
-   ;; WARNING: pdumper does not work with Native Compilation, so it's disabled
-   ;; regardless of the following setting when native compilation is in effect.
-   ;;
-   ;; (default nil)
-   dotspacemacs-enable-emacs-pdumper nil
-
-   ;; Name of executable file pointing to emacs 27+. This executable must be
-   ;; in your PATH.
-   ;; (default "emacs")
-   dotspacemacs-emacs-pdumper-executable-file "emacs"
-
-   ;; Name of the Spacemacs dump file. This is the file will be created by the
-   ;; portable dumper in the cache directory under dumps sub-directory.
-   ;; To load it when starting Emacs add the parameter `--dump-file'
-   ;; when invoking Emacs 27.1 executable on the command line, for instance:
-   ;;   ./emacs --dump-file=$HOME/.emacs.d/.cache/dumps/spacemacs-27.1.pdmp
-   ;; (default (format "spacemacs-%s.pdmp" emacs-version))
-   dotspacemacs-emacs-dumper-dump-file (format "spacemacs-%s.pdmp" emacs-version)
-
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
@@ -240,7 +222,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-startup-buffer-multi-digit-delay 0.4
 
    ;; If non-nil, show file icons for entries and headings on Spacemacs home buffer.
-   ;; This has no effect in terminal or if "all-the-icons" package or the font
+   ;; This has no effect in terminal or if "nerd-icons" package or the font
    ;; is not installed. (default nil)
    dotspacemacs-startup-buffer-show-icons t
 
@@ -293,9 +275,12 @@ It should only modify the values of Spacemacs settings."
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 15
+                               :size 14
                                :weight normal
                                :width normal)
+
+   ;; Default icons font, it can be `all-the-icons' or `nerd-icons'.
+   dotspacemacs-default-icons-font 'all-the-icons
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -316,10 +301,10 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-major-mode-leader-key ","
 
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
-   ;; (default "C-M-m" for terminal mode, "<M-return>" for GUI mode).
+   ;; (default "C-M-m" for terminal mode, "M-<return>" for GUI mode).
    ;; Thus M-RET should work as leader key in both GUI and terminal modes.
    ;; C-M-m also should work in terminal mode, but not in GUI mode.
-   dotspacemacs-major-mode-emacs-leader-key (if window-system "<M-return>" "C-M-m")
+   dotspacemacs-major-mode-emacs-leader-key (if window-system "M-<return>" "C-M-m")
 
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs `C-i', `TAB' and `C-m', `RET'.
@@ -765,19 +750,20 @@ This function is called at the very end of Spacemacs initialization."
  '(helm-posframe-width 151)
  '(package-selected-packages
    '(ace-jump-helm-line ace-link ace-pinyin add-node-modules-path aggressive-indent
-                        all-the-icons auctex-latexmk auto-dictionary
-                        auto-highlight-symbol auto-yasnippet blacken
-                        browse-at-remote ccls centaur-tabs centered-cursor-mode
-                        chinese-conv clang-format clean-aindent-mode cmake-mode
-                        code-cells column-enforce-mode company-anaconda
-                        company-auctex company-c-headers company-math
-                        company-reftex company-rtags company-web company-ycmd
-                        counsel counsel-gtags cpp-auto-include csv-mode
+                        all-the-icons anaconda-mode auctex-latexmk
+                        auto-dictionary auto-highlight-symbol auto-yasnippet
+                        blacken browse-at-remote ccls centaur-tabs
+                        centered-cursor-mode chinese-conv clang-format
+                        clean-aindent-mode cmake-mode code-cells
+                        column-enforce-mode company-anaconda company-auctex
+                        company-c-headers company-math company-reftex
+                        company-rtags company-web company-ycmd concurrent
+                        counsel counsel-gtags cpp-auto-include csv-mode ctable
                         cython-mode dap-mode devdocs diff-hl diminish
                         dired-quick-sort disaster doom-modeline doom-themes
-                        dotenv-mode drag-stuff dumb-jump eat emmet-mode esh-help
-                        eshell-prompt-extras eshell-z eval-sexp-fu evil-anzu
-                        evil-args evil-cleverparens evil-collection
+                        dotenv-mode drag-stuff dumb-jump eat emmet-mode epc
+                        esh-help eshell-prompt-extras eshell-z eval-sexp-fu
+                        evil-anzu evil-args evil-cleverparens evil-collection
                         evil-easymotion evil-escape evil-evilified-state
                         evil-exchange evil-find-char-pinyin evil-goggles
                         evil-iedit-state evil-indent-plus evil-lion
@@ -791,39 +777,41 @@ This function is called at the very end of Spacemacs initialization."
                         git-messenger git-modes git-timemachine
                         gitignore-templates gnuplot golden-ratio google-c-style
                         google-translate grizzl helm-ag helm-c-yasnippet
-                        helm-comint helm-company helm-css-scss helm-ctest
-                        helm-descbinds helm-git-grep helm-ls-git helm-lsp
-                        helm-make helm-mode-manager helm-org helm-org-rifle
-                        helm-projectile helm-purpose helm-pydoc helm-rtags
-                        helm-swoop helm-themes helm-xref hide-comnt
+                        helm-comint helm-company helm-cscope helm-css-scss
+                        helm-ctest helm-descbinds helm-git-grep helm-ls-git
+                        helm-lsp helm-make helm-mode-manager helm-org
+                        helm-org-rifle helm-projectile helm-purpose helm-pydoc
+                        helm-rtags helm-swoop helm-themes helm-xref hide-comnt
                         highlight-indentation highlight-numbers
                         highlight-parentheses hl-todo holy-mode hungry-delete
                         hybrid-mode impatient-mode import-js importmagic
                         indent-guide info+ ivy journalctl-mode js-doc js2-mode
                         js2-refactor launchctl link-hint live-py-mode livid-mode
-                        lorem-ipsum lsp-latex lsp-origami lsp-pyright lsp-ui
-                        markdown-toc multi-line multi-term multi-vterm
-                        multiple-cursors mwim nodejs-repl nose npm-mode
-                        open-junk-file org-cliplink org-contrib org-download
-                        org-mime org-pomodoro org-present org-projectile
-                        org-rich-yank org-superstar orgit-forge osx-clipboard
-                        osx-dictionary osx-trash pangu-spacing paradox
-                        password-generator pcre2el pip-requirements pipenv
-                        pippel plantuml-mode poetry popwin prettier-js
+                        load-env-vars lorem-ipsum lsp-latex lsp-origami
+                        lsp-pyright lsp-ui markdown-toc multi-line multi-term
+                        multi-vterm multiple-cursors mwim nodejs-repl nose
+                        npm-mode open-junk-file org-cliplink org-contrib
+                        org-download org-mime org-pomodoro org-present
+                        org-projectile org-rich-yank org-superstar orgit-forge
+                        osx-clipboard osx-dictionary osx-trash pangu-spacing
+                        paradox password-generator pcre2el pip-requirements
+                        pipenv pippel plantuml-mode poetry popwin prettier-js
                         protobuf-mode pug-mode py-isort pydoc pyenv-mode pyim
-                        pyim-basedict pylookup pytest quickrun
+                        pyim-basedict pylookup pytest pythonic pyvenv quickrun
                         rainbow-delimiters restart-emacs reveal-in-osx-finder
                         sass-mode scss-mode shell-pop skewer-mode slim-mode
                         smeargle space-doc spaceline spacemacs-purpose-popwin
                         spacemacs-whitespace-cleanup sphinx-doc
-                        string-edit-at-point string-inflection swiper
-                        symbol-overlay symon systemd tagedit term-cursor
-                        terminal-here tern toc-org toml-mode treemacs-evil
-                        treemacs-icons-dired treemacs-magit treemacs-persp
-                        treemacs-projectile undo-tree unfill uuidgen
-                        vi-tilde-fringe vim-powerline volatile-highlights
-                        web-beautify web-mode winum writeroom-mode ws-butler
-                        xclip yaml-mode yapfify yasnippet-snippets)))
+                        sticky-scroll-mode string-edit-at-point
+                        string-inflection swiper symbol-overlay symon systemd
+                        tagedit term-cursor terminal-here tern toc-org toml-mode
+                        treemacs-evil treemacs-icons-dired treemacs-magit
+                        treemacs-persp treemacs-projectile undo-tree unfill
+                        uuidgen vi-tilde-fringe vim-powerline
+                        volatile-highlights web-beautify web-mode winum
+                        writeroom-mode ws-butler xclip xcscope yaml-mode yapfify
+                        yasnippet-snippets))
+ '(safe-local-variable-directories '("/Users/kewei-lin/apollo/")))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
