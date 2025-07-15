@@ -638,6 +638,13 @@ before packages are loaded."
   (spacemacs/set-leader-keys "od" 'osx-dictionary-search-pointer)
   (spacemacs/set-leader-keys "oD" 'osx-dictionary-search-input)
 
+  (defun open-cur-in-vscode ()
+    "Open the current file in Visual Studio Code."
+    (interactive)
+    (when (buffer-file-name)
+      (shell-command (concat "code " (shell-quote-argument (buffer-file-name))))))
+  (spacemacs/set-leader-keys "ov" 'open-cur-in-vscode)
+
   ;; (turn-on-ace-pinyin-mode)
   ;; (evil-find-char-pinyin-mode)
 
