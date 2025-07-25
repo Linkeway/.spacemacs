@@ -606,15 +606,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (server-start)
   )
 
-
-(defun dotspacemacs/user-load ()
-  "Library to load while dumping.
-This function is called only while dumping Spacemacs configuration. You can
-`require' or `load' the libraries of your choice that will be included in the
-dump."
-  )
-
-
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
 This function is called at the very end of Spacemacs startup, after layer
@@ -639,10 +630,18 @@ before packages are loaded."
   (spacemacs/set-leader-keys "oD" 'osx-dictionary-search-input)
 
   (defun open-cur-buf-in-vscode ()
-    "Open the current file in Visual Studio Code."
+    "Open the current file in Visual Studio Code and go to the current line."
     (interactive)
     (when (buffer-file-name)
-      (shell-command (concat "code " (shell-quote-argument (buffer-file-name))))))
+      (shell-command
+       (concat "code -g "
+               (shell-quote-argument
+                (format "%s:%d"
+                        (buffer-file-name)
+                        (line-number-at-pos)))))))
+
+  (spacemacs/set-leader-keys "ov" 'open-cur-buf-in-vscode)
+
   (defun open-cur-folder-with-default-app ()
     "Open the folder of the current buffer in the default file manager."
     (interactive)
@@ -656,7 +655,6 @@ before packages are loaded."
           (if command
               (shell-command (concat command " " (shell-quote-argument dir)))
             (message "Unsupported OS for this command."))))))
-  (spacemacs/set-leader-keys "ov" 'open-cur-buf-in-vscode)
   (spacemacs/set-leader-keys "of" 'open-cur-folder-with-default-app)
 
   ;; (turn-on-ace-pinyin-mode)
