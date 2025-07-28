@@ -657,6 +657,43 @@ before packages are loaded."
             (message "Unsupported OS for this command."))))))
   (spacemacs/set-leader-keys "of" 'open-cur-folder-with-default-app)
 
+  (defun open-cur-buf-in-gitlab ()
+  "Generate a GitLab link for the current file and line and open it.
+The function constructs a URL using the commit hash of the
+current HEAD, ensuring the link is permanent. It determines the
+Git project root and the remote 'origin' URL automatically.
+It handles both SSH and HTTPS remote URLs."
+  (interactive)
+  ;; 1. Get the current file path and line number.
+  (let* ((file-path (buffer-file-name))
+         (current-line (line-number-at-pos (point))))
+    ;; Ensure we are in a buffer that is visiting a file.
+    (unless file-path
+      (error "The current buffer is not visiting a file"))
+
+    ;; 2. Run all git commands from the file's directory.
+    (let* ((default-directory (file-name-directory file-path))
+           (git-root (string-trim (shell-command-to-string "git rev-parse --show-toplevel")))
+           (relative-path (file-relative-name file-path git-root))
+           ;; (commit-hash (string-trim (shell-command-to-string "git rev-parse HEAD")))
+           (remote-url (string-trim (shell-command-to-string "git remote get-url origin")))
+
+           ;; 3. Convert git remote URL (SSH or HTTPS) into a browsable web URL.
+           (web-url
+            (let ((url remote-url))
+              ;; First, convert SSH URL format: "git@host:path" to "https://host/path".
+              (setq url (replace-regexp-in-string "^git@\\([^:]+\\):" "https://\\1/" url))
+              ;; Next, remove the ".git" suffix if it exists.
+              (replace-regexp-in-string "\\.git$" "" url)))
+
+           ;; 4. Assemble the final GitLab URL.
+           (final-url (format "%s/-/blob/%s/%s#L%d" web-url "master" relative-path current-line)))
+
+      ;; 5. Open the URL in the default browser and show a confirmation message.
+      (browse-url final-url)
+      (message "Opened in GitLab: %s" final-url))))
+  (spacemacs/set-leader-keys "og" 'open-cur-buf-in-gitlab)
+
   ;; (turn-on-ace-pinyin-mode)
   ;; (evil-find-char-pinyin-mode)
 
