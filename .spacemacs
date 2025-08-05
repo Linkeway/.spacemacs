@@ -694,6 +694,71 @@ It handles both SSH and HTTPS remote URLs."
       (message "Opened in GitLab: %s" final-url))))
   (spacemacs/set-leader-keys "og" 'open-cur-buf-in-gitlab)
 
+  (defun open-mr-for-current-line ()
+    "Find the MR/PR that last changed the current line and open it.
+  This version handles regular merges, squash-and-merge workflows from
+  both GitHub and GitLab, including custom commit message formats."
+    (interactive)
+    ;; 1. Pre-flight checks
+    (unless (locate-dominating-file default-directory ".git")
+      (error "Not in a git repository"))
+    (when (or (not (buffer-file-name)) (buffer-modified-p))
+      (error "Buffer is not visiting a file or has unsaved changes"))
+
+    (let* ((file (buffer-file-name))
+          (line (line-number-at-pos))
+          ;; 2. Get the commit hash for the current line
+          (blame-cmd (format "git blame -L %d,%d --porcelain -- %s" line line (shell-quote-argument file)))
+          (blame-output (shell-command-to-string blame-cmd)))
+
+      (if (or (string-empty-p blame-output) (string-prefix-p "00000000" blame-output))
+          (message "Could not get blame info for line %d. (Is the line uncommitted?)" line)
+        (let* ((commit (car (split-string blame-output)))
+              ;; Get repository's web URL from the git remote
+              (remote-url (replace-regexp-in-string "\n\\'" "" (shell-command-to-string "git remote get-url origin")))
+              (web-url (replace-regexp-in-string "\\.git$" ""
+                        (replace-regexp-in-string "^git@\\([^:]+\\):" "https://\\1/" remote-url)))
+              ;; Get bodies of BOTH the potential merge commit AND the blame commit itself
+              (merge-body (shell-command-to-string
+                            (format "git log --merges --ancestry-path %s^..HEAD --pretty=format:%%B --max-count=1"
+                                    (shell-quote-argument commit))))
+              (blame-commit-body (shell-command-to-string
+                                    (format "git show -s --format=%%B %s"
+                                            (shell-quote-argument commit))))
+              (mr-number nil))
+
+          ;; Try to find the MR number using multiple strategies
+          (cond
+          ;; Strategy 1: Standard GitHub merge commit
+          ((string-match "Merge pull request #\\([0-9]+\\)" merge-body)
+            (setq mr-number (match-string 1 merge-body)))
+          ;; Strategy 2: Standard GitLab merge commit
+          ((string-match "See merge request .*!\\([0-9]+\\)" merge-body)
+            (setq mr-number (match-string 1 merge-body)))
+          ;; Strategy 3: GitHub squash commit, e.g., "... (#123)"
+          ((string-match ".*(#\\([0-9]+\\))" blame-commit-body)
+            (setq mr-number (match-string 1 blame-commit-body)))
+          ;; Strategy 4: GitLab squash commit, e.g., "... (!41087)"
+          ((string-match ".*(!\\([0-9]+\\))" blame-commit-body)
+            (setq mr-number (match-string 1 blame-commit-body)))
+          ;; STRATEGY 5: Look for a full GitLab MR URL.
+          ((string-match "/-/merge_requests/\\([0-9]+\\)" blame-commit-body)
+           (setq mr-number (match-string 1 blame-commit-body)))
+
+          (t
+           (message "Could not find PR/MR for commit %s in merge or commit history." (substring commit 0 8))))
+
+          ;; Build and open the URL if a number was found
+          (when mr-number
+            ;; This automatically detects if it's GitLab or GitHub to build the correct URL
+            (let ((platform-path (if (string-match-p "gitlab" web-url)
+                                    "/-/merge_requests/"
+                                  "/pull/")))
+              (let ((mr-url (format "%s%s%s" web-url platform-path mr-number)))
+                (message "Opening: %s" mr-url)
+                (browse-url mr-url))))))))
+  (spacemacs/set-leader-keys "om" 'open-mr-for-current-line)
+
   ;; (turn-on-ace-pinyin-mode)
   ;; (evil-find-char-pinyin-mode)
 
