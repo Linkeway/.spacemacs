@@ -615,7 +615,7 @@ before packages are loaded."
   (setq-default evil-escape-key-sequence "jk"
                 c-default-style "bsd"
                 c-basic-offset 2)
-  (setq centaur-tabs-label-fixed-length 8)
+  (setq centaur-tabs-label-fixed-length 16)
 
   (setq markdown-max-image-size '(1100 . 800))
 
@@ -758,6 +758,9 @@ It handles both SSH and HTTPS remote URLs."
                 (message "Opening: %s" mr-url)
                 (browse-url mr-url))))))))
   (spacemacs/set-leader-keys "om" 'open-mr-for-current-line)
+
+  (global-set-key (kbd "M-[") 'spacemacs/tabs-backward)
+  (global-set-key (kbd "M-]") 'spacemacs/tabs-forward)
 
   ;; (turn-on-ace-pinyin-mode)
   ;; (evil-find-char-pinyin-mode)
