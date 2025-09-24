@@ -50,7 +50,6 @@ This function should only modify configuration layer settings."
            helm-enable-auto-resize t)
      lsp
      markdown
-     mermaid  ;; private layer https://github.com/arnm/mermaid-layer
      multiple-cursors
      org
      ;; google-calendar
@@ -619,8 +618,6 @@ before packages are loaded."
   (setq centaur-tabs-label-fixed-length 16)
 
   (setq markdown-max-image-size '(1100 . 800))
-
-  (setq ob-mermaid-cli-path "/opt/homebrew/bin/mmdc") ;; installed with npm install -g @mermaid-js/mermaid-cli
 
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
