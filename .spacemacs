@@ -614,7 +614,7 @@ before packages are loaded."
   (setq-default evil-escape-key-sequence "jk"
                 c-default-style "bsd"
                 c-basic-offset 2)
-  (setq centaur-tabs-label-fixed-length 16)
+  ;; (setq centaur-tabs-label-fixed-length 16)
 
   (setq markdown-max-image-size '(1100 . 800))
 
