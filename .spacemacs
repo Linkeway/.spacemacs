@@ -642,6 +642,21 @@ before packages are loaded."
 
   (spacemacs/set-leader-keys "ov" 'open-cur-buf-in-vscode)
 
+  (defun open-cur-buf-in-chrome ()
+    "Open the file of the current buffer in Google Chrome.
+     This is intended for macOS."
+    (interactive)
+    (if-let ((filename (buffer-file-name)))
+        (let ((process-connection-type nil)) ; Prevent output from creating a new buffer
+          (start-process "open-in-chrome"
+                         nil
+                         "open"
+                         "-a"
+                         "Google Chrome"
+                         filename))
+      (message "Buffer is not visiting a file")))
+  (spacemacs/set-leader-keys "oc" 'open-cur-buf-in-chrome)
+
   (defun open-cur-folder-with-default-app ()
     "Open the folder of the current buffer in the default file manager."
     (interactive)
