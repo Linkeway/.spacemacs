@@ -92,6 +92,7 @@ This function should only modify configuration layer settings."
      ;;          chinese-enable-fcitx nil)
      (plantuml :variables org-plantuml-jar-path " /opt/homebrew/Cellar/plantuml/1.2025.7/libexec/plantuml.jar"
                plantuml-default-exec-mode 'jar)
+     mermaid
      treemacs)
 
 
