@@ -84,8 +84,8 @@ This function should only modify configuration layer settings."
      ;;        latex-enable-auto-fill t
      ;;        latex-enable-folding t)
 
-     (llm-client :variables llm-client-enable-gptel t
-                 :variables llm-client-enable-ellama t)
+     ;; (llm-client :variables llm-client-enable-gptel t
+     ;;             :variables llm-client-enable-ellama t)
 
      ;; (chinese :variables
      ;;          chinese-enable-youdao-dict nil
@@ -219,7 +219,7 @@ It should only modify the values of Spacemacs settings."
    ;; Show numbers before the startup list lines. (default t)
    dotspacemacs-show-startup-list-numbers t
 
-   ;; The minimum delay in seconds between number key presses. (default 0.4)
+   ;; The maximum delay in seconds between number key presses. (default 0.4)
    dotspacemacs-startup-buffer-multi-digit-delay 0.4
 
    ;; If non-nil, show file icons for entries and headings on Spacemacs home buffer.
@@ -254,7 +254,6 @@ It should only modify the values of Spacemacs settings."
    ;; `:location' to download the theme package, refer the themes section in
    ;; DOCUMENTATION.org for the full theme specifications.
    dotspacemacs-themes '(doom-one
-                         spacemacs-dark
                          spacemacs-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
@@ -271,12 +270,12 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;; Default font or prioritized list of fonts. This setting has no effect when
-   ;; running Emacs in terminal. The font set here will be used for default and
-   ;; fixed-pitch faces. The `:size' can be specified as
+   ;; running Emacs in terminal. The font set here will be used for `default' and
+   ;; `fixed-pitch' faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 14
+                               :size 14.0
                                :weight normal
                                :width normal)
 
@@ -389,9 +388,12 @@ It should only modify the values of Spacemacs settings."
    ;; Spacemacs on Windows. Refer the FAQ.org "load-hints" session for details.
    dotspacemacs-enable-load-hints nil
 
-   ;; If t, enable the `package-quickstart' feature to avoid full package
-   ;; loading, otherwise no `package-quickstart' attemption (default nil).
-   ;; Refer the FAQ.org "package-quickstart" section for details.
+   ;; If non-nil, enable the `package-quickstart' feature to avoid activating
+   ;; all package autoloads one by one.
+   ;; Requires building and maintaining a quickstart autoload file for all
+   ;; installed packages.
+   ;; Refer to the FAQ.org "package-quickstart" section for details.
+   ;; (default nil)
    dotspacemacs-enable-package-quickstart nil
 
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
@@ -487,7 +489,9 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
    ;; over any automatically added closing parenthesis, bracket, quote, etc...
-   ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
+   ;; This can be temporary disabled by pressing `C-q' before `)'.
+   ;; Only effective when `dotspacemacs-activate-smartparens-mode' is non-nil.
+   ;; Redundant when `smartparens-strict-mode' is enabled. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
 
    ;; Select a scope to highlight delimiters. Possible values are `any',
@@ -839,14 +843,13 @@ It handles both SSH and HTTPS remote URLs."
   ;;                  ;; Call `toggle-frame-fullscreen' to fullscreen emacs.
   ;;                  (toggle-frame-fullscreen))))
 
-  (setq
-   ;; gptel-model 'deepseek-r1:8b
-   gptel-model 'deepseek-coder-v2
-   gptel-backend (gptel-make-ollama "Ollama"
-                   :host "localhost:11434"
-                   :stream t
-                   ;; :models '(deepseek-r1:8b)))
-                   :models '(deepseek-coder-v2)))
+  ;; (setq
+  ;;  gptel-model 'deepseek-coder-v2
+  ;;  gptel-backend (gptel-make-ollama "Ollama"
+  ;;                  :host "localhost:11434"
+  ;;                  :stream t
+  ;;                  ;; :models '(deepseek-r1:8b)))
+  ;;                  :models '(deepseek-coder-v2)))
 
   (setq org-agenda-span 7
         org-agenda-start-on-weekday nil
