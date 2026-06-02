@@ -712,10 +712,15 @@ It handles both SSH and HTTPS remote URLs."
               ;; Next, remove the ".git" suffix if it exists.
               (replace-regexp-in-string "\\.git$" "" url)))
 
-           ;; 4. Assemble the final GitLab URL.
-           (final-url (format "%s/-/blob/%s/%s#L%d" web-url "master" relative-path current-line)))
+           ;; 4. Detect the default branch (main or master) from origin/HEAD.
+           (default-branch
+            (let ((detected (string-trim (shell-command-to-string "git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||'"))))
+              (if (string-empty-p detected) "master" detected)))
 
-      ;; 5. Open the URL in the default browser and show a confirmation message.
+           ;; 5. Assemble the final GitLab URL.
+           (final-url (format "%s/-/blob/%s/%s#L%d" web-url default-branch relative-path current-line)))
+
+      ;; 6. Open the URL in the default browser and show a confirmation message.
       (browse-url final-url)
       (message "Opened in GitLab: %s" final-url))))
   (spacemacs/set-leader-keys "og" 'open-cur-buf-in-gitlab)
