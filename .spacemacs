@@ -628,6 +628,20 @@ before packages are loaded."
                 c-basic-offset 2)
   ;; (setq centaur-tabs-label-fixed-length 16)
 
+  ;; Enable tab numbers on the tab bar
+  ;; (setq centaur-tabs-show-count t)
+
+  ;; Map Command + 1..9 to switch tabs
+  ;; Binds both Meta and Super mappings so it works with osx-swap-option-and-command
+  (with-eval-after-load 'winum
+    (dotimes (i 9)
+      (let ((key-s (format "s-%d" (+ i 1)))
+            (key-m (format "M-%d" (+ i 1))))
+        (define-key winum-keymap (kbd key-s) 'centaur-tabs-select-visible-tab)
+        (define-key winum-keymap (kbd key-m) 'centaur-tabs-select-visible-tab)
+        (define-key global-map (kbd key-s) 'centaur-tabs-select-visible-tab)
+        (define-key global-map (kbd key-m) 'centaur-tabs-select-visible-tab))))
+
   (setq markdown-max-image-size '(1100 . 800))
 
   ;; Prevent undo tree files from polluting your git repo
@@ -891,6 +905,7 @@ It handles both SSH and HTTPS remote URLs."
     (quote
      ((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
   )
+
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
