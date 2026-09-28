@@ -746,6 +746,140 @@ It handles both SSH and HTTPS remote URLs."
       (message "Opened in GitLab: %s" final-url))))
   (spacemacs/set-leader-keys "og" 'open-cur-buf-in-gitlab)
 
+   ;; bash equivalent below
+   ;; # Open file or folder in GitLab/GitHub web interface
+   ;;  ogit() {
+   ;;    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+   ;;      echo "ogit: not a git repository" >&2
+   ;;      return 1
+   ;;    }
+
+   ;;    local git_root
+   ;;    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || return 1
+
+   ;;    local target="$1"
+   ;;    local line=""
+
+   ;;    # Handle "ogit file line", "ogit file:line:col", or "ogit file:line"
+   ;;    if [[ $# -ge 2 && "$2" =~ ^[0-9]+$ ]]; then
+   ;;      line="$2"
+   ;;    elif [[ "$target" =~ ^(.*):([0-9]+):[0-9]+$ ]]; then
+   ;;      target="$match[1]"
+   ;;      line="$match[2]"
+   ;;    elif [[ "$target" =~ ^(.*):([0-9]+)$ ]]; then
+   ;;      target="$match[1]"
+   ;;      line="$match[2]"
+   ;;    fi
+
+   ;;    target="${target:-.}"
+
+   ;;    if [[ ! -e "$target" ]]; then
+   ;;      echo "ogit: $target: No such file or directory" >&2
+   ;;      return 1
+   ;;    fi
+
+   ;;    local abs_target
+   ;;    abs_target="$(realpath "$target" 2>/dev/null)" || return 1
+
+   ;;    if [[ "$abs_target" != "$git_root"* ]]; then
+   ;;      echo "ogit: $target is outside the git repository" >&2
+   ;;      return 1
+   ;;    fi
+
+   ;;    local rel_path="${abs_target#$git_root}"
+   ;;    rel_path="${rel_path#/}"
+
+   ;;    local remote_url
+   ;;    remote_url="$(git remote get-url origin 2>/dev/null)"
+   ;;    if [[ -z "$remote_url" ]]; then
+   ;;      local first_remote
+   ;;      first_remote="$(git remote 2>/dev/null | head -n 1)"
+   ;;      [[ -n "$first_remote" ]] && remote_url="$(git remote get-url "$first_remote" 2>/dev/null)"
+   ;;    fi
+
+   ;;    if [[ -z "$remote_url" ]]; then
+   ;;      echo "ogit: no git remote found" >&2
+   ;;      return 1
+   ;;    fi
+
+   ;;    # Convert remote_url (SSH or HTTPS) to browsable web URL
+   ;;    local web_url="$remote_url"
+   ;;    web_url="${web_url#ssh://}"
+   ;;    web_url="${web_url#git+ssh://}"
+   ;;    if [[ "$web_url" =~ ^[^:]+@ ]]; then
+   ;;      web_url="${web_url#*@}"
+   ;;      web_url="$(echo "$web_url" | sed -E 's|^([^/:]+):[0-9]+/(.+)|\1/\2|')"
+   ;;      web_url="$(echo "$web_url" | sed -E 's|^([^/:]+):|\1/|')"
+   ;;      web_url="https://$web_url"
+   ;;    elif [[ "$web_url" =~ ^https?:// ]]; then
+   ;;      web_url="$(echo "$web_url" | sed -E 's|^(https?://)[^/@]+@|\1|')"
+   ;;    else
+   ;;      web_url="https://$web_url"
+   ;;    fi
+   ;;    web_url="${web_url%.git}"
+
+   ;;    # Determine default branch (origin/HEAD, then fallback to origin/main or origin/master)
+   ;;    local default_branch
+   ;;    default_branch="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+   ;;    if [[ -z "$default_branch" ]]; then
+   ;;      if git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
+   ;;        default_branch="main"
+   ;;      elif git show-ref --verify --quiet refs/remotes/origin/master 2>/dev/null; then
+   ;;        default_branch="master"
+   ;;      else
+   ;;        default_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+   ;;        [[ -z "$default_branch" || "$default_branch" == "HEAD" ]] && default_branch="master"
+   ;;      fi
+   ;;    fi
+
+   ;;    local is_github=0
+   ;;    if [[ "$web_url" =~ github ]]; then
+   ;;      is_github=1
+   ;;    fi
+
+   ;;    local final_url=""
+   ;;    if [[ -d "$abs_target" ]]; then
+   ;;      if [[ -z "$rel_path" ]]; then
+   ;;        if [[ $is_github -eq 1 ]]; then
+   ;;          final_url="${web_url}/tree/${default_branch}"
+   ;;        else
+   ;;          final_url="${web_url}/-/tree/${default_branch}"
+   ;;        fi
+   ;;      else
+   ;;        if [[ $is_github -eq 1 ]]; then
+   ;;          final_url="${web_url}/tree/${default_branch}/${rel_path}"
+   ;;        else
+   ;;          final_url="${web_url}/-/tree/${default_branch}/${rel_path}"
+   ;;        fi
+   ;;      fi
+   ;;    else
+   ;;      if [[ $is_github -eq 1 ]]; then
+   ;;        final_url="${web_url}/blob/${default_branch}/${rel_path}"
+   ;;      else
+   ;;        final_url="${web_url}/-/blob/${default_branch}/${rel_path}"
+   ;;      fi
+   ;;      if [[ -n "$line" ]]; then
+   ;;        final_url="${final_url}#L${line}"
+   ;;      fi
+   ;;    fi
+
+   ;;    local opener=""
+   ;;    if [[ "$OSTYPE" == darwin* ]]; then
+   ;;      opener="open"
+   ;;    elif command -v xdg-open >/dev/null 2>&1; then
+   ;;      opener="xdg-open"
+   ;;    elif command -v open >/dev/null 2>&1; then
+   ;;      opener="open"
+   ;;    elif command -v explorer.exe >/dev/null 2>&1; then
+   ;;      opener="explorer.exe"
+   ;;    else
+   ;;      echo "ogit: could not detect browser opener command" >&2
+   ;;      return 1
+   ;;    fi
+
+   ;;    "$opener" "$final_url" >/dev/null 2>&1
+   ;;  }
+
   (defun open-mr-for-current-line ()
     "Find the MR/PR that last changed the current line and open it.
   This version handles regular merges, squash-and-merge workflows from
