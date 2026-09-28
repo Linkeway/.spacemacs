@@ -614,6 +614,13 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  ;; On macOS, BSD tar includes extended attributes (e.g. com.apple.provenance)
+  ;; as AppleDouble `._*` companion files when Quelpa builds multi-file packages
+  ;; (such as `iedit` for `evil-iedit-state`). In Emacs 31, `package-tar-file-info`
+  ;; crashes on these `._*` entries with `wrong-type-argument arrayp nil`.
+  ;; Setting COPYFILE_DISABLE=1 prevents tar from creating AppleDouble files.
+  (setenv "COPYFILE_DISABLE" "1")
+
   (setq-default git-magit-status-fullscreen t)
   )
 
